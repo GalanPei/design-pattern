@@ -20,6 +20,10 @@ enum class IStatus : unsigned {
     BAD_PARAM,
 };
 
+/**
+ * @brief Base class of Animal object
+ *
+ */
 class Animal {
   public:
     Animal() = default;

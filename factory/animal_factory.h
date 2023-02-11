@@ -20,6 +20,11 @@
 #include "animal.h"
 
 namespace fty {
+
+/**
+ * @brief Factory of Animal objects, implemented by Singleton
+ *
+ */
 class AnimalFactory final {
   public:
     virtual ~AnimalFactory() = default;
@@ -37,17 +42,36 @@ class AnimalFactory final {
         animal_hash_.emplace(name, func);
     }
 
-    std::unique_ptr<Animal> Create(const std::string &name) {
+    Animal *Create(const std::string &name) {
         if (animal_hash_.find(name) == animal_hash_.end()) {
             return nullptr;
         }
-        return std::make_unique<Animal>(animal_hash_.at(name));
+        return animal_hash_.at(name)();
     }
 
   private:
+    // Constructor is set private in Singleton
     AnimalFactory() = default;
+    // Hash map to store the function of creating each Animal object and
+    // the keys of these objects
     std::unordered_map<std::string, std::function<Animal *()>> animal_hash_;
 };
+
+class RegisterHelper {
+  public:
+    RegisterHelper(const std::string &name,
+                   const std::function<Animal *()> &func) {
+        AnimalFactory::GetInstance()->RegisterAnimal(name, func);
+    }
+};
+
+// Macro to register each animal object
+#define REGISTER_ANIMAL(class_name, name)                                      \
+    static RegisterHelper g_##class_name##_register(                           \
+        name, []() -> class_name * {                                           \
+            auto ret{std::make_shared<class_name>()};                          \
+            return ret.get();                                                  \
+        });
 
 } // namespace fty
 
