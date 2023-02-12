@@ -73,6 +73,19 @@ class RegisterHelper {
             return ret.get();                                                  \
         });
 
+template <class T> class TRegisterHelper {
+  public:
+    TRegisterHelper(const std::string &name) {
+        AnimalFactory::GetInstance()->RegisterAnimal(name, []() {
+            auto ret{std::make_shared<T>()};
+            return ret.get();
+        });
+    }
+};
+
+#define T_REGISTER_ANIMAL(class_name, name)                                    \
+    static TRegisterHelper<class_name> g_##class_name##_register{name};
+
 } // namespace fty
 
 #endif // _FACTORY_ANIMAL_FACTORY_H_
